@@ -2,6 +2,7 @@ package com.softensity.controller.search
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import com.softensity.service.SearchInfo
 import spray.json.{DefaultJsonProtocol, RootJsonFormat, enrichAny}
 
@@ -14,13 +15,15 @@ trait DirectorsJsonMapping extends DefaultJsonProtocol {
 
 
 trait SearchApi extends DirectorsJsonMapping {
-  val searchRoute = get {
+  val searchRoute: Route = get {
     pathPrefix("search") {
-      parameter("q") {
-        query =>
-          complete(GoogleSearchController.getSecondGoogleSearch(query).map(_.toJson))
-      }
+      searchGoogle("q")
     }
+  }
+
+  private def searchGoogle(searchParameter: String): Route = parameter(searchParameter) {
+    query =>
+      complete(GoogleSearchController.getSecondGoogleSearch(query).map(_.toJson))
   }
 
 }
